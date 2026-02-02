@@ -7,8 +7,8 @@ import { useAuth } from "@/context/AuthContext"
 import { Alert } from "@/components/atoms/Alert"
 import { useNavigate } from "react-router-dom"
 
-export function LoginForm() {
-  const [mode, setMode] = useState("login")
+export function LoginForm({ mode: externalMode, setMode: setExternalMode }) {
+  const [mode, setMode] = useState(externalMode || "login")
   const [form, setForm] = useState({ name: "", username: "", password: "" })
   const { login, register, loading, error, setError } = useAuth()
   const navigate = useNavigate()
@@ -33,6 +33,7 @@ export function LoginForm() {
       })
       if (res.success) {
         setMode("login")
+        setExternalMode?.("login")
       }
     } else {
       const res = await login({ username: form.username, password: form.password })
@@ -46,6 +47,12 @@ export function LoginForm() {
     setForm((f) => ({ ...f, [key]: e.target.value }))
   }
 
+  const switchMode = (next) => {
+    setMode(next)
+    setExternalMode?.(next)
+    setError(null)
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex gap-2 text-sm">
@@ -54,7 +61,7 @@ export function LoginForm() {
           className={`flex-1 rounded-lg border px-3 py-2 ${
             isRegister ? "border-slate-300 text-slate-700 dark:border-slate-700" : "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
           }`}
-          onClick={() => setMode("login")}
+          onClick={() => switchMode("login")}
         >
           Login
         </button>
@@ -63,7 +70,7 @@ export function LoginForm() {
           className={`flex-1 rounded-lg border px-3 py-2 ${
             isRegister ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900" : "border-slate-300 text-slate-700 dark:border-slate-700"
           }`}
-          onClick={() => setMode("register")}
+          onClick={() => switchMode("register")}
         >
           Register
         </button>
